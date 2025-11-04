@@ -183,13 +183,16 @@ function App() {
     const qtdPorCor = Math.floor(lista.length / coresDisponiveis.length);
     let extras = lista.length % coresDisponiveis.length;
     const coresDistribuidas = [];
+
     coresDisponiveis.forEach(c => {
       for (let i = 0; i < qtdPorCor; i++) coresDistribuidas.push(c);
     });
+
     while (extras > 0) {
       coresDistribuidas.push(coresDisponiveis[Math.floor(Math.random() * coresDisponiveis.length)]);
       extras--;
     }
+
     return embaralharArray(coresDistribuidas);
   };
 
@@ -202,66 +205,20 @@ function App() {
   };
 
   // --- Sorteio por gênero ---
-const sortearPorGenero = () => {
-  if (dados.length === 0) return alert("Carregue a lista primeiro!");
+  const sortearPorGenero = () => {
+    if (dados.length === 0) return alert("Carregue a lista primeiro!");
 
-  const homens = dados.filter(p => p.genero === "M");
-  const mulheres = dados.filter(p => p.genero === "F");
+    const homens = dados.filter(p => p.genero === "M");
+    const mulheres = dados.filter(p => p.genero === "F");
 
-  const distribuirEquilibrado = (lista, coresDisponiveis) => {
-    const qtdPorCor = Math.floor(lista.length / coresDisponiveis.length);
-    let extras = lista.length % coresDisponiveis.length;
-    const distribuidas = [];
+    const coresHDistribuidas = distribuirCores(homens, coresHomem);
+    const coresFDistribuidas = distribuirCores(mulheres, cores);
 
-    // Garante que cada cor apareça pelo menos qtdPorCor vezes
-    coresDisponiveis.forEach(c => {
-      for (let i = 0; i < qtdPorCor; i++) distribuidas.push(c);
-    });
+    const homensFinal = homens.map((p, i) => ({ ...p, cor: coresHDistribuidas[i] }));
+    const mulheresFinal = mulheres.map((p, i) => ({ ...p, cor: coresFDistribuidas[i] }));
 
-    // Distribui extras aleatoriamente entre todas as cores
-    while (extras > 0) {
-      distribuidas.push(coresDisponiveis[Math.floor(Math.random() * coresDisponiveis.length)]);
-      extras--;
-    }
-
-    return embaralharArray(distribuidas);
+    setDados([...homensFinal, ...mulheresFinal]);
   };
-
-  const coresHDistribuidas = distribuirEquilibrado(homens, coresHomem);
-  const coresFDistribuidas = distribuirEquilibrado(mulheres, cores);
-
-  const homensFinal = homens.map((p, i) => ({ ...p, cor: coresHDistribuidas[i] }));
-  const mulheresFinal = mulheres.map((p, i) => ({ ...p, cor: coresFDistribuidas[i] }));
-
-  setDados([...homensFinal, ...mulheresFinal]);
-};
-  
-  // --- Distribuição de cores equilibrada para mulheres (com rosa) ---
-  const coresFDistribuidas = [];
-  const qtdPorCorF = Math.floor(mulheres.length / cores.length);
-  let extrasF = mulheres.length % cores.length;
-  cores.forEach(c => {
-    for (let i = 0; i < qtdPorCorF; i++) coresFDistribuidas.push(c);
-  });
-  while (extrasF > 0) {
-    coresFDistribuidas.push(cores[Math.floor(Math.random() * cores.length)]);
-    extrasF--;
-  }
-
-  // --- Embaralhar ---
-  const homensFinal = embaralharArray(coresHDistribuidas).map((c, i) => ({
-    ...homens[i],
-    cor: c
-  }));
-
-  const mulheresFinal = embaralharArray(coresFDistribuidas).map((c, i) => ({
-    ...mulheres[i],
-    cor: c
-  }));
-
-  // --- Combina homens e mulheres mantendo todos ---
-  setDados([...homensFinal, ...mulheresFinal]);
-};
 
   // --- Baixar TXT ---
   const baixarTXT = () => {
@@ -307,7 +264,7 @@ const sortearPorGenero = () => {
               <td style={{
                 width: "30px",
                 height: "30px",
-                backgroundColor: p.cor.trim() ? p.cor.toLowerCase() : "transparent",
+                backgroundColor: p.cor ? p.cor.toLowerCase() : "transparent",
                 border: "1px solid #000",
                 textAlign: "center"
               }}>
@@ -322,3 +279,5 @@ const sortearPorGenero = () => {
 }
 
 export default App;
+
+
