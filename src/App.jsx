@@ -152,19 +152,11 @@ import { saveAs } from "file-saver";
 const cores = ["Verde", "Azul", "Amarelo", "Rosa"];
 const coresHomem = ["Verde", "Azul", "Amarelo"];
 
-function embaralharArray(arr) {
-  const copy = [...arr];
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
-}
-
 function App() {
   const [texto, setTexto] = useState("");
   const [dados, setDados] = useState([]);
 
+  // Parse da lista de entrada
   const parseDados = () => {
     const linhas = texto.split("\n").filter(l => l.trim() !== "");
     const parsed = linhas.map(linha => {
@@ -175,12 +167,23 @@ function App() {
     setDados(parsed);
   };
 
+  // Função de embaralhar array
+  const embaralharArray = (arr) => {
+    const copy = [...arr];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  };
+
+  // Sorteio Geral (todas as cores equilibradas)
   const sortearGeral = () => {
     const qtd = dados.length;
-    const coresDistribuidas = [];
     const qtdPorCor = Math.floor(qtd / cores.length);
     let extras = qtd % cores.length;
 
+    const coresDistribuidas = [];
     cores.forEach(c => {
       for (let i = 0; i < qtdPorCor; i++) coresDistribuidas.push(c);
     });
@@ -197,34 +200,48 @@ function App() {
     setDados(novosDados);
   };
 
+  // Sorteio por Gênero (homens sem rosa)
   const sortearPorGenero = () => {
-    const totalPessoas = dados.length;
+    const homens = dados.filter(p => p.genero.toUpperCase() === "H" || p.genero.toUpperCase() === "M");
+    const mulheres = dados.filter(p => p.genero.toUpperCase() === "F" || p.genero.toUpperCase() === "M");
 
-    // criar lista de cores equilibrada globalmente
-    const qtdPorCor = Math.floor(totalPessoas / cores.length);
-    let extras = totalPessoas % cores.length;
+    // Homens
+    const qtdPorCorH = Math.floor(homens.length / coresHomem.length);
+    let extrasH = homens.length % coresHomem.length;
+    const coresHDistribuidas = [];
+    coresHomem.forEach(c => {
+      for (let i = 0; i < qtdPorCorH; i++) coresHDistribuidas.push(c);
+    });
+    while (extrasH > 0) {
+      coresHDistribuidas.push(coresHomem[Math.floor(Math.random() * coresHomem.length)]);
+      extrasH--;
+    }
 
-    const listaCores = [];
+    // Mulheres
+    const qtdPorCorF = Math.floor(mulheres.length / cores.length);
+    let extrasF = mulheres.length % cores.length;
+    const coresFDistribuidas = [];
     cores.forEach(c => {
-      for (let i = 0; i < qtdPorCor; i++) listaCores.push(c);
+      for (let i = 0; i < qtdPorCorF; i++) coresFDistribuidas.push(c);
     });
+    while (extrasF > 0) {
+      coresFDistribuidas.push(cores[Math.floor(Math.random() * cores.length)]);
+      extrasF--;
+    }
 
-    const coresExtras = embaralharArray([...cores]);
-    for (let i = 0; i < extras; i++) listaCores.push(coresExtras[i]);
+    const homensFinal = embaralharArray(coresHDistribuidas).map((c, i) => ({
+      ...homens[i],
+      cor: c
+    }));
+    const mulheresFinal = embaralharArray(coresFDistribuidas).map((c, i) => ({
+      ...mulheres[i],
+      cor: c
+    }));
 
-    const coresEmbaralhadas = embaralharArray(listaCores);
-
-    const novosDados = dados.map(p => {
-      let cor;
-      do {
-        cor = coresEmbaralhadas.pop();
-      } while ((p.genero.toUpperCase() === "H" || p.genero.toUpperCase() === "M") && cor === "Rosa");
-      return { ...p, cor };
-    });
-
-    setDados(novosDados);
+    setDados([...homensFinal, ...mulheresFinal]);
   };
 
+  // Baixar TXT
   const baixarTXT = () => {
     const linhas = dados.map(d => `${d.nome} - ${d.modelo} - ${d.tamanho} - ${d.cor}`).join("\n");
     const blob = new Blob([linhas], { type: "text/plain;charset=utf-8" });
@@ -260,25 +277,18 @@ function App() {
         <tbody>
           {dados.map((p, idx) => (
             <tr key={idx}>
-              <td>
-                {p.nome}{" "}
-                <span
-                  style={{
-                    display: "inline-block",
-                    width: "15px",
-                    height: "15px",
-                    backgroundColor: p.cor.toLowerCase(),
-                    border: "1px solid #000",
-                    marginLeft: "5px",
-                    verticalAlign: "middle"
-                  }}
-                  title={p.cor}
-                ></span>
-              </td>
+              <td>{p.nome}</td>
               <td>{p.modelo}</td>
               <td>{p.tamanho}</td>
               <td>{p.genero}</td>
-              <td>{p.cor}</td>
+              <td style={{
+                width: "20px",
+                height: "20px",
+                backgroundColor: p.cor.toLowerCase() || "transparent",
+                textAlign: "center"
+              }}>
+                {p.cor}
+              </td>
             </tr>
           ))}
         </tbody>
