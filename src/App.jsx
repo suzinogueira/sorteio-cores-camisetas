@@ -200,12 +200,14 @@ function App() {
   };
 
 
-  const sortearPorGenero = () => {
+// --- Sorteio por gênero equilibrado ---
+const sortearPorGenero = () => {
   if (dados.length === 0) return alert("Carregue a lista primeiro!");
 
   const homens = dados.filter(p => p.genero === "M");
   const mulheres = dados.filter(p => p.genero === "F");
 
+  // Função interna para distribuir cores de forma equilibrada
   const distribuirCoresEquilibradas = (lista, coresDisponiveis) => {
     const qtdPorCor = Math.floor(lista.length / coresDisponiveis.length);
     let extras = lista.length % coresDisponiveis.length;
@@ -216,30 +218,28 @@ function App() {
       for (let i = 0; i < qtdPorCor; i++) coresDistribuidas.push(c);
     });
 
-    // Passo 2: distribuir os extras de forma rotativa
-    let idx = 0;
-    while (extras > 0) {
-      coresDistribuidas.push(coresDisponiveis[idx % coresDisponiveis.length]);
-      idx++;
-      extras--;
+    // Passo 2: distribuir os extras nas primeiras cores
+    for (let i = 0; i < extras; i++) {
+      coresDistribuidas.push(coresDisponiveis[i % coresDisponiveis.length]);
     }
 
     return embaralharArray(coresDistribuidas);
   };
 
-  const homensFinal = embaralharArray(distribuirCoresEquilibradas(homens, coresHomem)).map((c, i) => ({
-    ...homens[i],
-    cor: c
-  }));
+  // --- Distribuição para homens (sem rosa) ---
+  const coresHDistribuidas = distribuirCoresEquilibradas(homens, coresHomem);
 
-  const mulheresFinal = embaralharArray(distribuirCoresEquilibradas(mulheres, cores)).map((c, i) => ({
-    ...mulheres[i],
-    cor: c
-  }));
+  // --- Distribuição para mulheres (com rosa) ---
+  // Ordene cores para garantir que rosa esteja entre as primeiras, se houver extras
+  const coresMulheresOrdenadas = ["Rosa", "Verde", "Azul", "Amarelo"];
+  const coresFDistribuidas = distribuirCoresEquilibradas(mulheres, coresMulheresOrdenadas);
+
+  // --- Embaralhar e atribuir cores ---
+  const homensFinal = homens.map((p, i) => ({ ...p, cor: coresHDistribuidas[i] }));
+  const mulheresFinal = mulheres.map((p, i) => ({ ...p, cor: coresFDistribuidas[i] }));
 
   setDados([...homensFinal, ...mulheresFinal]);
 };
-
   
 
   const baixarTXT = () => {
