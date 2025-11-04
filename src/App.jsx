@@ -157,6 +157,7 @@ function App() {
   const [texto, setTexto] = useState("");
   const [dados, setDados] = useState([]);
 
+  // Parse da lista de entrada
   const parseDados = () => {
     const linhas = texto.split("\n").filter(l => l.trim() !== "");
     const parsed = linhas.map(linha => {
@@ -167,6 +168,7 @@ function App() {
     setDados(parsed);
   };
 
+  // Função para embaralhar arrays
   const embaralharArray = (arr) => {
     const copy = [...arr];
     for (let i = copy.length - 1; i > 0; i--) {
@@ -176,7 +178,10 @@ function App() {
     return copy;
   };
 
+  // Sorteio geral: toda a lista, cores distribuídas igualmente
   const sortearGeral = () => {
+    if (dados.length === 0) return;
+
     const qtd = dados.length;
     const coresDistribuidas = [];
     const qtdPorCor = Math.floor(qtd / cores.length);
@@ -198,8 +203,11 @@ function App() {
     setDados(novosDados);
   };
 
+  // Sorteio por gênero
   const sortearPorGenero = () => {
-    const homens = dados.filter(p => p.genero.toUpperCase() === "M");
+    if (dados.length === 0) return;
+
+    const homens = dados.filter(p => p.genero.toUpperCase() === "H" || p.genero.toUpperCase() === "M");
     const mulheres = dados.filter(p => p.genero.toUpperCase() === "F");
 
     const distribuirCoresBalanceado = (pessoas, coresDisponiveis) => {
@@ -211,7 +219,6 @@ function App() {
       coresDisponiveis.forEach(c => {
         for (let i = 0; i < qtdPorCor; i++) coresExpand.push(c);
       });
-
       while (extras > 0) {
         coresExpand.push(coresDisponiveis[Math.floor(Math.random() * coresDisponiveis.length)]);
         extras--;
@@ -227,6 +234,7 @@ function App() {
     setDados([...homensFinal, ...mulheresFinal]);
   };
 
+  // Baixar CSV
   const baixarCSV = () => {
     const header = "Nome,Modelo,Tamanho,Gênero,Cor\n";
     const linhas = dados.map(d => `${d.nome},${d.modelo},${d.tamanho},${d.genero},${d.cor}`).join("\n");
@@ -240,7 +248,7 @@ function App() {
       <textarea
         rows={10}
         cols={50}
-        placeholder="Cole a lista aqui (Nome - Modelo - Tamanho - F/M)"
+        placeholder="Cole a lista aqui (Nome - Modelo - Tamanho - F/M/H)"
         value={texto}
         onChange={e => setTexto(e.target.value)}
       />
