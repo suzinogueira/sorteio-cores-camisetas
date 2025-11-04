@@ -200,50 +200,42 @@ function App() {
     setDados(novosDados);
   };
 
-  const sortearPorGenero = () => {
-  // Separar homens e mulheres pelo gênero correto (H = homem, M = mulher)
+ const sortearPorGenero = () => {
   const homens = dados.filter(p => p.genero.toUpperCase() === "H");
   const mulheres = dados.filter(p => p.genero.toUpperCase() === "M");
 
-  // --- Distribuição de cores para homens ---
-  const coresHomemDistribuidas = [];
-  const qtdPorCorHomem = Math.floor(homens.length / coresHomem.length);
-  let extrasH = homens.length % coresHomem.length;
+  const coresTotais = [...cores]; // ['Verde', 'Azul', 'Amarelo', 'Rosa']
 
-  coresHomem.forEach(c => {
-    for (let i = 0; i < qtdPorCorHomem; i++) coresHomemDistribuidas.push(c);
+  // calcular quantidade de cores proporcional ao total de pessoas
+  const totalPessoas = dados.length;
+  const qtdPorCor = Math.floor(totalPessoas / coresTotais.length);
+  let extras = totalPessoas % coresTotais.length;
+
+  // criar lista de cores base
+  const listaCores = [];
+  coresTotais.forEach(c => {
+    for (let i = 0; i < qtdPorCor; i++) listaCores.push(c);
   });
-  while (extrasH > 0) {
-    coresHomemDistribuidas.push(coresHomem[Math.floor(Math.random() * coresHomem.length)]);
-    extrasH--;
+
+  // distribuir extras aleatoriamente
+  const coresExtras = embaralharArray([...coresTotais]);
+  for (let i = 0; i < extras; i++) {
+    listaCores.push(coresExtras[i]);
   }
 
-  // --- Distribuição de cores para mulheres ---
-  const coresMulherDistribuidas = [];
-  const qtdPorCorMulher = Math.floor(mulheres.length / cores.length);
-  let extrasF = mulheres.length % cores.length;
+  // embaralhar cores globalmente
+  const coresEmbaralhadas = embaralharArray(listaCores);
 
-  cores.forEach(c => {
-    for (let i = 0; i < qtdPorCorMulher; i++) coresMulherDistribuidas.push(c);
+  // atribuir cores respeitando gênero
+  const novosDados = dados.map(p => {
+    let cor;
+    do {
+      cor = coresEmbaralhadas.pop();
+    } while (p.genero.toUpperCase() === "H" && cor === "Rosa"); // homens não podem rosa
+    return { ...p, cor };
   });
-  while (extrasF > 0) {
-    coresMulherDistribuidas.push(cores[Math.floor(Math.random() * cores.length)]);
-    extrasF--;
-  }
 
-  // Embaralhar as cores antes de distribuir
-  const homensFinal = embaralharArray(coresHomemDistribuidas).map((cor, idx) => ({
-    ...homens[idx],
-    cor
-  }));
-
-  const mulheresFinal = embaralharArray(coresMulherDistribuidas).map((cor, idx) => ({
-    ...mulheres[idx],
-    cor
-  }));
-
-  // Juntar tudo novamente
-  setDados([...homensFinal, ...mulheresFinal]);
+  setDados(novosDados);
 };
 
   const baixarCSV = () => {
