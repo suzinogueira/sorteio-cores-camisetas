@@ -202,19 +202,50 @@ function App() {
   };
 
   // --- Sorteio por gênero ---
-  const sortearPorGenero = () => {
-    if (dados.length === 0) return alert("Carregue a lista primeiro!");
-    const homens = dados.filter(p => p.genero === "M");
-    const mulheres = dados.filter(p => p.genero === "F");
+const sortearPorGenero = () => {
+  if (dados.length === 0) return alert("Carregue a lista primeiro!");
 
-    const coresHDistribuidas = distribuirCores(homens, coresHomem);
-    const coresFDistribuidas = distribuirCores(mulheres, cores);
+  const homens = dados.filter(p => p.genero === "M");
+  const mulheres = dados.filter(p => p.genero === "F");
 
-    const homensFinal = homens.map((p, idx) => ({ ...p, cor: coresHDistribuidas[idx] }));
-    const mulheresFinal = mulheres.map((p, idx) => ({ ...p, cor: coresFDistribuidas[idx] }));
+  // --- Distribuição de cores equilibrada para homens (sem rosa) ---
+  const coresHDistribuidas = [];
+  const qtdPorCorH = Math.floor(homens.length / coresHomem.length);
+  let extrasH = homens.length % coresHomem.length;
+  coresHomem.forEach(c => {
+    for (let i = 0; i < qtdPorCorH; i++) coresHDistribuidas.push(c);
+  });
+  while (extrasH > 0) {
+    coresHDistribuidas.push(coresHomem[Math.floor(Math.random() * coresHomem.length)]);
+    extrasH--;
+  }
 
-    setDados([...homensFinal, ...mulheresFinal]);
-  };
+  // --- Distribuição de cores equilibrada para mulheres (com rosa) ---
+  const coresFDistribuidas = [];
+  const qtdPorCorF = Math.floor(mulheres.length / cores.length);
+  let extrasF = mulheres.length % cores.length;
+  cores.forEach(c => {
+    for (let i = 0; i < qtdPorCorF; i++) coresFDistribuidas.push(c);
+  });
+  while (extrasF > 0) {
+    coresFDistribuidas.push(cores[Math.floor(Math.random() * cores.length)]);
+    extrasF--;
+  }
+
+  // --- Embaralhar ---
+  const homensFinal = embaralharArray(coresHDistribuidas).map((c, i) => ({
+    ...homens[i],
+    cor: c
+  }));
+
+  const mulheresFinal = embaralharArray(coresFDistribuidas).map((c, i) => ({
+    ...mulheres[i],
+    cor: c
+  }));
+
+  // --- Combina homens e mulheres mantendo todos ---
+  setDados([...homensFinal, ...mulheresFinal]);
+};
 
   // --- Baixar TXT ---
   const baixarTXT = () => {
