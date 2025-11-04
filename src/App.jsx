@@ -176,26 +176,53 @@ function App() {
     return copy;
   };
 
-  const distribuirCores = (pessoas, coresDisponiveis) => {
-    const n = pessoas.length;
-    const coresBalanceadas = [];
-    while (coresBalanceadas.length < n) {
-      coresBalanceadas.push(...coresDisponiveis);
-    }
-    coresBalanceadas.length = n; // ajusta exatamente o tamanho
-    return pessoas.map((p, i) => ({ ...p, cor: coresBalanceadas[i] }));
-  };
-
   const sortearGeral = () => {
-    setDados(embaralharArray(distribuirCores(dados, cores)));
+    const qtd = dados.length;
+    const coresDistribuidas = [];
+    const qtdPorCor = Math.floor(qtd / cores.length);
+    let extras = qtd % cores.length;
+
+    cores.forEach(c => {
+      for (let i = 0; i < qtdPorCor; i++) coresDistribuidas.push(c);
+    });
+    while (extras > 0) {
+      coresDistribuidas.push(cores[Math.floor(Math.random() * cores.length)]);
+      extras--;
+    }
+
+    const embaralhadas = embaralharArray(coresDistribuidas);
+    const novosDados = dados.map((pessoa, idx) => ({
+      ...pessoa,
+      cor: embaralhadas[idx]
+    }));
+    setDados(novosDados);
   };
 
   const sortearPorGenero = () => {
     const homens = dados.filter(p => p.genero.toUpperCase() === "M");
     const mulheres = dados.filter(p => p.genero.toUpperCase() === "F");
 
-    const homensFinal = embaralharArray(distribuirCores(homens, coresHomem));
-    const mulheresFinal = embaralharArray(distribuirCores(mulheres, cores));
+    const distribuirCoresBalanceado = (pessoas, coresDisponiveis) => {
+      const n = pessoas.length;
+      const coresExpand = [];
+      const qtdPorCor = Math.floor(n / coresDisponiveis.length);
+      let extras = n % coresDisponiveis.length;
+
+      coresDisponiveis.forEach(c => {
+        for (let i = 0; i < qtdPorCor; i++) coresExpand.push(c);
+      });
+
+      while (extras > 0) {
+        coresExpand.push(coresDisponiveis[Math.floor(Math.random() * coresDisponiveis.length)]);
+        extras--;
+      }
+
+      const embaralhadas = embaralharArray(coresExpand);
+      return pessoas.map((p, i) => ({ ...p, cor: embaralhadas[i] }));
+    };
+
+    const homensFinal = distribuirCoresBalanceado(homens, coresHomem);
+    const mulheresFinal = distribuirCoresBalanceado(mulheres, cores);
 
     setDados([...homensFinal, ...mulheresFinal]);
   };
@@ -205,3 +232,48 @@ function App() {
     const linhas = dados.map(d => `${d.nome},${d.modelo},${d.tamanho},${d.genero},${d.cor}`).join("\n");
     const blob = new Blob([header + linhas], { type: "text/csv;charset=utf-8" });
     saveAs(blob, "camisetas.csv");
+  };
+
+  return (
+    <div style={{ padding: "20px", fontFamily: "Arial" }}>
+      <h1>Embaralhador de Camisetas</h1>
+      <textarea
+        rows={10}
+        cols={50}
+        placeholder="Cole a lista aqui (Nome - Modelo - Tamanho - F/M)"
+        value={texto}
+        onChange={e => setTexto(e.target.value)}
+      />
+      <br /><br />
+      <button onClick={parseDados}>Carregar Lista</button>
+      <button onClick={sortearGeral}>Sortear Geral</button>
+      <button onClick={sortearPorGenero}>Sortear por Gênero</button>
+      <button onClick={baixarCSV}>Baixar CSV</button>
+      <br /><br />
+      <table border="1" cellPadding="5">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Modelo</th>
+            <th>Tamanho</th>
+            <th>Gênero</th>
+            <th>Cor</th>
+          </tr>
+        </thead>
+        <tbody>
+          {dados.map((p, idx) => (
+            <tr key={idx}>
+              <td>{p.nome}</td>
+              <td>{p.modelo}</td>
+              <td>{p.tamanho}</td>
+              <td>{p.genero}</td>
+              <td>{p.cor}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+export default App;
