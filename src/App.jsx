@@ -201,38 +201,50 @@ function App() {
   };
 
   const sortearPorGenero = () => {
-    if (dados.length === 0) return;
+  // Separar homens e mulheres pelo gênero correto (H = homem, M = mulher)
+  const homens = dados.filter(p => p.genero.toUpperCase() === "H");
+  const mulheres = dados.filter(p => p.genero.toUpperCase() === "M");
 
-    const homens = dados.filter(p => p.genero.toUpperCase() === "H" || p.genero.toUpperCase() === "M");
-    const mulheres = dados.filter(p => p.genero.toUpperCase() === "F");
+  // --- Distribuição de cores para homens ---
+  const coresHomemDistribuidas = [];
+  const qtdPorCorHomem = Math.floor(homens.length / coresHomem.length);
+  let extrasH = homens.length % coresHomem.length;
 
-    const distribuirCoresBalanceado = (pessoas, coresDisponiveis) => {
-      const n = pessoas.length;
-      const coresDistribuidas = [];
+  coresHomem.forEach(c => {
+    for (let i = 0; i < qtdPorCorHomem; i++) coresHomemDistribuidas.push(c);
+  });
+  while (extrasH > 0) {
+    coresHomemDistribuidas.push(coresHomem[Math.floor(Math.random() * coresHomem.length)]);
+    extrasH--;
+  }
 
-      // Quantidade base de cada cor
-      const base = Math.floor(n / coresDisponiveis.length);
-      let extras = n % coresDisponiveis.length;
+  // --- Distribuição de cores para mulheres ---
+  const coresMulherDistribuidas = [];
+  const qtdPorCorMulher = Math.floor(mulheres.length / cores.length);
+  let extrasF = mulheres.length % cores.length;
 
-      coresDisponiveis.forEach(c => {
-        for (let i = 0; i < base; i++) coresDistribuidas.push(c);
-      });
+  cores.forEach(c => {
+    for (let i = 0; i < qtdPorCorMulher; i++) coresMulherDistribuidas.push(c);
+  });
+  while (extrasF > 0) {
+    coresMulherDistribuidas.push(cores[Math.floor(Math.random() * cores.length)]);
+    extrasF--;
+  }
 
-      while (extras > 0) {
-        const cor = coresDisponiveis[Math.floor(Math.random() * coresDisponiveis.length)];
-        coresDistribuidas.push(cor);
-        extras--;
-      }
+  // Embaralhar as cores antes de distribuir
+  const homensFinal = embaralharArray(coresHomemDistribuidas).map((cor, idx) => ({
+    ...homens[idx],
+    cor
+  }));
 
-      const embaralhadas = embaralharArray(coresDistribuidas);
-      return pessoas.map((p, i) => ({ ...p, cor: embaralhadas[i] }));
-    };
+  const mulheresFinal = embaralharArray(coresMulherDistribuidas).map((cor, idx) => ({
+    ...mulheres[idx],
+    cor
+  }));
 
-    const homensFinal = distribuirCoresBalanceado(homens, coresHomem);
-    const mulheresFinal = distribuirCoresBalanceado(mulheres, cores);
-
-    setDados([...homensFinal, ...mulheresFinal]);
-  };
+  // Juntar tudo novamente
+  setDados([...homensFinal, ...mulheresFinal]);
+};
 
   const baixarCSV = () => {
     const header = "Nome,Modelo,Tamanho,Genero,Cor\n";
