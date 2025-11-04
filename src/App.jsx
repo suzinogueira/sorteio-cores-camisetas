@@ -159,14 +159,12 @@ function App() {
   // --- Parse da lista ---
   const parseDados = () => {
     const linhas = texto.split("\n").filter(l => l.trim() !== "");
-    console.log("Linhas:", linhas);
     const parsed = linhas.map(linha => {
       const partes = linha.split(" - ").map(p => p.trim());
+      if (partes.length < 4) return null; // ignora linhas incompletas
       const [nome, modelo, tamanho, genero] = partes;
-      console.log("Partes:", partes);
       return { nome, modelo, tamanho, genero: genero.toUpperCase(), cor: "" };
-    });
-    console.log("Parsed:", parsed);
+    }).filter(Boolean);
     setDados(parsed);
   };
 
@@ -180,27 +178,26 @@ function App() {
     return copy;
   };
 
-  // --- Sorteio geral ---
-  const sortearGeral = () => {
-    if (dados.length === 0) return alert("Carregue a lista primeiro!");
-    const qtd = dados.length;
+  // --- Distribuição equilibrada de cores ---
+  const distribuirCores = (lista, coresDisponiveis) => {
+    const qtdPorCor = Math.floor(lista.length / coresDisponiveis.length);
+    let extras = lista.length % coresDisponiveis.length;
     const coresDistribuidas = [];
-    const qtdPorCor = Math.floor(qtd / cores.length);
-    let extras = qtd % cores.length;
-
-    cores.forEach(c => {
+    coresDisponiveis.forEach(c => {
       for (let i = 0; i < qtdPorCor; i++) coresDistribuidas.push(c);
     });
     while (extras > 0) {
-      coresDistribuidas.push(cores[Math.floor(Math.random() * cores.length)]);
+      coresDistribuidas.push(coresDisponiveis[Math.floor(Math.random() * coresDisponiveis.length)]);
       extras--;
     }
+    return embaralharArray(coresDistribuidas);
+  };
 
-    const embaralhadas = embaralharArray(coresDistribuidas);
-    const novosDados = dados.map((pessoa, idx) => ({
-      ...pessoa,
-      cor: embaralhadas[idx]
-    }));
+  // --- Sorteio geral ---
+  const sortearGeral = () => {
+    if (dados.length === 0) return alert("Carregue a lista primeiro!");
+    const coresDistribuidas = distribuirCores(dados, cores);
+    const novosDados = dados.map((p, idx) => ({ ...p, cor: coresDistribuidas[idx] }));
     setDados(novosDados);
   };
 
@@ -210,39 +207,11 @@ function App() {
     const homens = dados.filter(p => p.genero === "M");
     const mulheres = dados.filter(p => p.genero === "F");
 
-    // --- Homens ---
-    const qtdPorCorH = Math.floor(homens.length / coresHomem.length);
-    let extrasH = homens.length % coresHomem.length;
-    const coresHDistribuidas = [];
-    coresHomem.forEach(c => {
-      for (let i = 0; i < qtdPorCorH; i++) coresHDistribuidas.push(c);
-    });
-    while (extrasH > 0) {
-      coresHDistribuidas.push(coresHomem[Math.floor(Math.random() * coresHomem.length)]);
-      extrasH--;
-    }
+    const coresHDistribuidas = distribuirCores(homens, coresHomem);
+    const coresFDistribuidas = distribuirCores(mulheres, cores);
 
-    // --- Mulheres ---
-    const qtdPorCorF = Math.floor(mulheres.length / cores.length);
-    let extrasF = mulheres.length % cores.length;
-    const coresFDistribuidas = [];
-    cores.forEach(c => {
-      for (let i = 0; i < qtdPorCorF; i++) coresFDistribuidas.push(c);
-    });
-    while (extrasF > 0) {
-      coresFDistribuidas.push(cores[Math.floor(Math.random() * cores.length)]);
-      extrasF--;
-    }
-
-    const homensFinal = embaralharArray(coresHDistribuidas).map((c, i) => ({
-      ...homens[i],
-      cor: c
-    }));
-
-    const mulheresFinal = embaralharArray(coresFDistribuidas).map((c, i) => ({
-      ...mulheres[i],
-      cor: c
-    }));
+    const homensFinal = homens.map((p, idx) => ({ ...p, cor: coresHDistribuidas[idx] }));
+    const mulheresFinal = mulheres.map((p, idx) => ({ ...p, cor: coresFDistribuidas[idx] }));
 
     setDados([...homensFinal, ...mulheresFinal]);
   };
@@ -291,7 +260,7 @@ function App() {
               <td style={{
                 width: "30px",
                 height: "30px",
-                backgroundColor: p.cor.trim().toLowerCase() || "transparent",
+                backgroundColor: p.cor.trim() ? p.cor.toLowerCase() : "transparent",
                 border: "1px solid #000",
                 textAlign: "center"
               }}>
