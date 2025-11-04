@@ -260,18 +260,25 @@ function App() {
         <tbody>
           {dados.map((p, idx) => (
             <tr key={idx}>
-              <td>{p.nome}</td>
+              <td>
+                {p.nome}{" "}
+                <span
+                  style={{
+                    display: "inline-block",
+                    width: "15px",
+                    height: "15px",
+                    backgroundColor: p.cor.toLowerCase(),
+                    border: "1px solid #000",
+                    marginLeft: "5px",
+                    verticalAlign: "middle"
+                  }}
+                  title={p.cor}
+                ></span>
+              </td>
               <td>{p.modelo}</td>
               <td>{p.tamanho}</td>
               <td>{p.genero}</td>
-              <td>
-                <div style={{
-                  width: "40px",
-                  height: "20px",
-                  backgroundColor: p.cor.toLowerCase(),
-                  border: "1px solid #000"
-                }} title={p.cor}></div>
-              </td>
+              <td>{p.cor}</td>
             </tr>
           ))}
         </tbody>
