@@ -156,17 +156,22 @@ function App() {
   const [texto, setTexto] = useState("");
   const [dados, setDados] = useState([]);
 
+  // --- Parse da lista ---
   const parseDados = () => {
     const linhas = texto.split("\n").filter(l => l.trim() !== "");
+    console.log("Linhas:", linhas);
     const parsed = linhas.map(linha => {
       const partes = linha.split(" - ").map(p => p.trim());
       const [nome, modelo, tamanho, genero] = partes;
+      console.log("Partes:", partes);
       return { nome, modelo, tamanho, genero: genero.toUpperCase(), cor: "" };
     });
+    console.log("Parsed:", parsed);
     setDados(parsed);
   };
 
-  const embaralharArray = (arr) => {
+  // --- Função de embaralhar ---
+  const embaralharArray = arr => {
     const copy = [...arr];
     for (let i = copy.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -175,7 +180,9 @@ function App() {
     return copy;
   };
 
+  // --- Sorteio geral ---
   const sortearGeral = () => {
+    if (dados.length === 0) return alert("Carregue a lista primeiro!");
     const qtd = dados.length;
     const coresDistribuidas = [];
     const qtdPorCor = Math.floor(qtd / cores.length);
@@ -197,7 +204,9 @@ function App() {
     setDados(novosDados);
   };
 
+  // --- Sorteio por gênero ---
   const sortearPorGenero = () => {
+    if (dados.length === 0) return alert("Carregue a lista primeiro!");
     const homens = dados.filter(p => p.genero === "M");
     const mulheres = dados.filter(p => p.genero === "F");
 
@@ -238,7 +247,9 @@ function App() {
     setDados([...homensFinal, ...mulheresFinal]);
   };
 
+  // --- Baixar TXT ---
   const baixarTXT = () => {
+    if (dados.length === 0) return alert("Não há dados para baixar!");
     const linhas = dados.map(d => `${d.nome} - ${d.modelo} - ${d.tamanho} - ${d.cor}`).join("\n");
     const blob = new Blob([linhas], { type: "text/plain;charset=utf-8" });
     saveAs(blob, "camisetas.txt");
