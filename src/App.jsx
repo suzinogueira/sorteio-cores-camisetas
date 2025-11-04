@@ -159,7 +159,6 @@ function App() {
   const [dados, setDados] = useState([]);
   const [ordenarPor, setOrdenarPor] = useState("");
 
-  // --- Parse da lista ---
   const parseDados = () => {
     const linhas = texto.split("\n").filter(l => l.trim() !== "");
     const parsed = linhas.map(linha => {
@@ -171,7 +170,6 @@ function App() {
     setDados(parsed);
   };
 
-  // --- Embaralhar ---
   const embaralharArray = arr => {
     const copy = [...arr];
     for (let i = copy.length - 1; i > 0; i--) {
@@ -181,7 +179,6 @@ function App() {
     return copy;
   };
 
-  // --- Distribuir cores equilibradas ---
   const distribuirCoresEquilibradas = (lista, coresDisponiveis) => {
     const qtdPorCor = Math.floor(lista.length / coresDisponiveis.length);
     let extras = lista.length % coresDisponiveis.length;
@@ -191,7 +188,6 @@ function App() {
       for (let i = 0; i < qtdPorCor; i++) coresDistribuidas.push(c);
     });
 
-    // Distribuir extras aleatoriamente
     while (extras > 0) {
       coresDistribuidas.push(coresDisponiveis[Math.floor(Math.random() * coresDisponiveis.length)]);
       extras--;
@@ -200,14 +196,12 @@ function App() {
     return embaralharArray(coresDistribuidas);
   };
 
-  // --- Sorteio geral ---
   const sortearGeral = () => {
     if (dados.length === 0) return alert("Carregue a lista primeiro!");
     const coresDistribuidas = distribuirCoresEquilibradas(dados, cores);
     setDados(dados.map((p, i) => ({ ...p, cor: coresDistribuidas[i] })));
   };
 
-  // --- Sorteio por gênero ---
   const sortearPorGenero = () => {
     if (dados.length === 0) return alert("Carregue a lista primeiro!");
     const homens = dados.filter(p => p.genero === "M");
@@ -222,7 +216,6 @@ function App() {
     setDados([...homensFinal, ...mulheresFinal]);
   };
 
-  // --- Baixar TXT ---
   const baixarTXT = () => {
     if (dados.length === 0) return alert("Não há dados para baixar!");
     const linhas = dados.map(d => `${d.nome} - ${d.modelo} - ${d.tamanho} - ${d.cor}`).join("\n");
@@ -230,7 +223,6 @@ function App() {
     saveAs(blob, "camisetas.txt");
   };
 
-  // --- Baixar Excel ---
   const baixarExcel = () => {
     if (dados.length === 0) return alert("Não há dados para baixar!");
     const ws = XLSX.utils.json_to_sheet(dados.map(d => ({
@@ -245,65 +237,70 @@ function App() {
     saveAs(new Blob([buf], { type: "application/octet-stream" }), "camisetas.xlsx");
   };
 
-  // --- Ordenar tabela ---
   const ordenarTabela = coluna => {
     let novaLista = [...dados];
-    novaLista.sort((a, b) => {
-      if (a[coluna] < b[coluna]) return -1;
-      if (a[coluna] > b[coluna]) return 1;
-      return 0;
-    });
+    novaLista.sort((a, b) => (a[coluna] < b[coluna] ? -1 : a[coluna] > b[coluna] ? 1 : 0));
     setDados(novaLista);
     setOrdenarPor(coluna);
   };
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial" }}>
-      <h1>Embaralhador de Camisetas</h1>
+    <div style={{ padding: "10px", fontFamily: "Arial", maxWidth: "100%" }}>
+      <h1 style={{ fontSize: "1.5em" }}>Embaralhador de Camisetas</h1>
       <textarea
-        rows={10}
-        cols={50}
+        rows={8}
+        style={{ width: "100%", boxSizing: "border-box", fontSize: "1em" }}
         placeholder="Cole a lista aqui (Nome - Modelo - Tamanho - F/M)"
         value={texto}
         onChange={e => setTexto(e.target.value)}
       />
-      <br /><br />
-      <button onClick={parseDados}>Carregar Lista</button>
-      <button onClick={sortearGeral}>Sortear Geral</button>
-      <button onClick={sortearPorGenero}>Sortear por Gênero</button>
-      <button onClick={baixarTXT}>Baixar TXT</button>
-      <button onClick={baixarExcel}>Baixar Excel</button>
-      <br /><br />
-      <table border="1" cellPadding="5">
-        <thead>
-          <tr>
-            {["nome", "modelo", "tamanho", "genero", "cor"].map(col => (
-              <th key={col} onClick={() => ordenarTabela(col)} style={{ cursor: "pointer" }}>
-                {col.toUpperCase()} {ordenarPor === col ? "▼" : ""}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {dados.map((p, idx) => (
-            <tr key={idx}>
-              <td>{p.nome}</td>
-              <td>{p.modelo}</td>
-              <td>{p.tamanho}</td>
-              <td>{p.genero}</td>
-              <td style={{
-                width: "30px",
-                height: "30px",
-                backgroundColor: p.cor.trim() ? p.cor.toLowerCase() : "transparent",
-                border: "1px solid #000",
-                textAlign: "center"
-              }}>
-                {p.cor}
-              </td>
+      <div style={{
+        display: "flex",
+        flexWrap: "wrap",
+        gap: "8px",
+        marginTop: "10px",
+        marginBottom: "10px"
+      }}>
+        <button onClick={parseDados} style={{ flex: "1 1 45%" }}>Carregar Lista</button>
+        <button onClick={sortearGeral} style={{ flex: "1 1 45%" }}>Sortear Geral</button>
+        <button onClick={sortearPorGenero} style={{ flex: "1 1 45%" }}>Sortear por Gênero</button>
+        <button onClick={baixarTXT} style={{ flex: "1 1 45%" }}>Baixar TXT</button>
+        <button onClick={baixarExcel} style={{ flex: "1 1 45%" }}>Baixar Excel</button>
+      </div>
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse" }} border="1" cellPadding="5">
+          <thead>
+            <tr>
+              {["nome", "modelo", "tamanho", "genero", "cor"].map(col => (
+                <th
+                  key={col}
+                  onClick={() => ordenarTabela(col)}
+                  style={{ cursor: "pointer", minWidth: "80px" }}
+                >
+                  {col.toUpperCase()} {ordenarPor === col ? "▼" : ""}
+                </th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {dados.map((p, idx) => (
+              <tr key={idx}>
+                <td>{p.nome}</td>
+                <td>{p.modelo}</td>
+                <td>{p.tamanho}</td>
+                <td>{p.genero}</td>
+                <td style={{
+                  width: "30px",
+                  height: "30px",
+                  backgroundColor: p.cor.trim() ? p.cor.toLowerCase() : "transparent",
+                  border: "1px solid #000",
+                  textAlign: "center"
+                }} />
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
