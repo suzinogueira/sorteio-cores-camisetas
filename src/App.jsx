@@ -146,7 +146,6 @@ function App() {
 
 export default App;
 */
-
 import React, { useState } from "react";
 import { saveAs } from "file-saver";
 
@@ -157,7 +156,6 @@ function App() {
   const [texto, setTexto] = useState("");
   const [dados, setDados] = useState([]);
 
-  // Parse da lista de entrada
   const parseDados = () => {
     const linhas = texto.split("\n").filter(l => l.trim() !== "");
     const parsed = linhas.map(linha => {
@@ -168,7 +166,6 @@ function App() {
     setDados(parsed);
   };
 
-  // Função para embaralhar arrays
   const embaralharArray = (arr) => {
     const copy = [...arr];
     for (let i = copy.length - 1; i > 0; i--) {
@@ -178,18 +175,18 @@ function App() {
     return copy;
   };
 
-  // Sorteio geral: toda a lista, cores distribuídas igualmente
   const sortearGeral = () => {
     if (dados.length === 0) return;
-
     const qtd = dados.length;
     const coresDistribuidas = [];
+
     const qtdPorCor = Math.floor(qtd / cores.length);
     let extras = qtd % cores.length;
 
     cores.forEach(c => {
       for (let i = 0; i < qtdPorCor; i++) coresDistribuidas.push(c);
     });
+
     while (extras > 0) {
       coresDistribuidas.push(cores[Math.floor(Math.random() * cores.length)]);
       extras--;
@@ -203,7 +200,6 @@ function App() {
     setDados(novosDados);
   };
 
-  // Sorteio por gênero
   const sortearPorGenero = () => {
     if (dados.length === 0) return;
 
@@ -212,19 +208,23 @@ function App() {
 
     const distribuirCoresBalanceado = (pessoas, coresDisponiveis) => {
       const n = pessoas.length;
-      const coresExpand = [];
-      const qtdPorCor = Math.floor(n / coresDisponiveis.length);
+      const coresDistribuidas = [];
+
+      // Quantidade base de cada cor
+      const base = Math.floor(n / coresDisponiveis.length);
       let extras = n % coresDisponiveis.length;
 
       coresDisponiveis.forEach(c => {
-        for (let i = 0; i < qtdPorCor; i++) coresExpand.push(c);
+        for (let i = 0; i < base; i++) coresDistribuidas.push(c);
       });
+
       while (extras > 0) {
-        coresExpand.push(coresDisponiveis[Math.floor(Math.random() * coresDisponiveis.length)]);
+        const cor = coresDisponiveis[Math.floor(Math.random() * coresDisponiveis.length)];
+        coresDistribuidas.push(cor);
         extras--;
       }
 
-      const embaralhadas = embaralharArray(coresExpand);
+      const embaralhadas = embaralharArray(coresDistribuidas);
       return pessoas.map((p, i) => ({ ...p, cor: embaralhadas[i] }));
     };
 
@@ -234,9 +234,8 @@ function App() {
     setDados([...homensFinal, ...mulheresFinal]);
   };
 
-  // Baixar CSV
   const baixarCSV = () => {
-    const header = "Nome,Modelo,Tamanho,Gênero,Cor\n";
+    const header = "Nome,Modelo,Tamanho,Genero,Cor\n";
     const linhas = dados.map(d => `${d.nome},${d.modelo},${d.tamanho},${d.genero},${d.cor}`).join("\n");
     const blob = new Blob([header + linhas], { type: "text/csv;charset=utf-8" });
     saveAs(blob, "camisetas.csv");
@@ -248,7 +247,7 @@ function App() {
       <textarea
         rows={10}
         cols={50}
-        placeholder="Cole a lista aqui (Nome - Modelo - Tamanho - F/M/H)"
+        placeholder="Cole a lista aqui (Nome - Modelo - Tamanho - F/M)"
         value={texto}
         onChange={e => setTexto(e.target.value)}
       />
