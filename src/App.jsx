@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+/*import React, { useState } from "react";
 import { saveAs } from "file-saver";
 
 const cores = ["Verde", "Azul", "Amarelo", "Rosa"];
@@ -145,3 +145,63 @@ function App() {
 }
 
 export default App;
+*/
+
+import React, { useState } from "react";
+import { saveAs } from "file-saver";
+
+const cores = ["Verde", "Azul", "Amarelo", "Rosa"];
+const coresHomem = ["Verde", "Azul", "Amarelo"];
+
+function App() {
+  const [texto, setTexto] = useState("");
+  const [dados, setDados] = useState([]);
+
+  const parseDados = () => {
+    const linhas = texto.split("\n").filter(l => l.trim() !== "");
+    const parsed = linhas.map(linha => {
+      const partes = linha.split(" - ").map(p => p.trim());
+      const [nome, modelo, tamanho, genero] = partes;
+      return { nome, modelo, tamanho, genero, cor: "" };
+    });
+    setDados(parsed);
+  };
+
+  const embaralharArray = (arr) => {
+    const copy = [...arr];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  };
+
+  const distribuirCores = (pessoas, coresDisponiveis) => {
+    const n = pessoas.length;
+    const coresBalanceadas = [];
+    while (coresBalanceadas.length < n) {
+      coresBalanceadas.push(...coresDisponiveis);
+    }
+    coresBalanceadas.length = n; // ajusta exatamente o tamanho
+    return pessoas.map((p, i) => ({ ...p, cor: coresBalanceadas[i] }));
+  };
+
+  const sortearGeral = () => {
+    setDados(embaralharArray(distribuirCores(dados, cores)));
+  };
+
+  const sortearPorGenero = () => {
+    const homens = dados.filter(p => p.genero.toUpperCase() === "M");
+    const mulheres = dados.filter(p => p.genero.toUpperCase() === "F");
+
+    const homensFinal = embaralharArray(distribuirCores(homens, coresHomem));
+    const mulheresFinal = embaralharArray(distribuirCores(mulheres, cores));
+
+    setDados([...homensFinal, ...mulheresFinal]);
+  };
+
+  const baixarCSV = () => {
+    const header = "Nome,Modelo,Tamanho,Gênero,Cor\n";
+    const linhas = dados.map(d => `${d.nome},${d.modelo},${d.tamanho},${d.genero},${d.cor}`).join("\n");
+    const blob = new Blob([header + linhas], { type: "text/csv;charset=utf-8" });
+    saveAs(blob, "camisetas.csv");
