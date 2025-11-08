@@ -1,148 +1,117 @@
-/* ====== LAYOUT GERAL ====== */
+/* ===== Layout geral ===== */
 body {
+  background-color: #fafafa;
+  font-family: "Poppins", sans-serif;
   margin: 0;
-  font-family: "Poppins", "Arial", sans-serif;
-  background-color: #fff;
+  padding: 0;
   color: #333;
 }
 
-.container {
+.app-container {
   max-width: 900px;
-  margin: 0 auto;
+  margin: 40px auto;
   padding: 20px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.titulo {
   text-align: center;
+  margin-bottom: 20px;
+  color: #444;
 }
 
-h1 {
-  margin-bottom: 1rem;
-  font-size: 1.8rem;
-  color: #222;
-}
-
-/* ====== TEXTAREA ====== */
-textarea {
+/* ===== Área de texto ===== */
+.area-texto {
   width: 100%;
-  max-width: 600px;
-  height: 180px;
-  border-radius: 8px;
+  height: 160px;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 12px;
   border: 1px solid #ccc;
-  padding: 10px;
-  font-size: 0.95rem;
-  resize: vertical;
+  resize: none;
   outline: none;
-  transition: border-color 0.3s;
+  transition: 0.3s;
 }
 
-textarea:focus {
-  border-color: #0077cc;
+.area-texto:focus {
+  border-color: #1e90ff;
+  box-shadow: 0 0 8px rgba(30, 144, 255, 0.3);
 }
 
-/* ====== BOTÕES ====== */
-button {
-  background-color: #0077cc;
-  color: #fff;
+/* ===== Botões ===== */
+.botoes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.botoes button {
+  background: #1e90ff;
+  color: white;
   border: none;
-  border-radius: 6px;
   padding: 10px 18px;
-  font-size: 0.95rem;
-  margin: 6px;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
-}
-
-button:hover {
-  background-color: #005fa3;
-  transform: translateY(-2px);
-}
-
-button:active {
-  transform: translateY(0);
-}
-
-/* ====== TABELA ====== */
-table {
-  border-collapse: collapse;
-  margin: 20px auto;
-  width: 100%;
-  max-width: 800px;
-  font-size: 0.95rem;
-  background-color: #fafafa;
+  font-size: 15px;
   border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-th,
-td {
-  padding: 10px;
+.botoes button:hover {
+  background: #187bcd;
+}
+
+/* ===== Tabela ===== */
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-size: 15px;
   text-align: center;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.tabela th {
+  background: #1e90ff;
+  color: white;
+  padding: 10px;
+  font-weight: 600;
+}
+
+.tabela td {
+  padding: 10px;
   border-bottom: 1px solid #ddd;
 }
 
-th {
-  background-color: #0077cc;
-  color: white;
-  cursor: pointer;
-  user-select: none;
+/* Ajusta cor do texto quando o fundo é colorido */
+.tabela tr td {
+  transition: background-color 0.2s, color 0.2s;
 }
 
-th:hover {
-  background-color: #005fa3;
-}
-
-tr:nth-child(even) {
-  background-color: #f4f9ff;
-}
-
-/* ====== CORES ====== */
-td[colspan] {
-  background-color: #eee;
-}
-
-td {
-  font-weight: 500;
-}
-
-/* Fundo e contraste ajustados */
-td[style*="verde"] {
-  background-color: #2e8b57 !important;
-  color: #fff !important;
-}
-
-td[style*="azul"] {
-  background-color: #1e90ff !important;
-  color: #fff !important;
-}
-
-td[style*="amarelo"] {
-  background-color: #ffd700 !important;
-  color: #000 !important;
-}
-
-td[style*="rosa"] {
-  background-color: #ff69b4 !important;
-  color: #fff !important;
-}
-
-/* ====== RESPONSIVO ====== */
-@media (max-width: 700px) {
-  table {
-    font-size: 0.85rem;
+/* ===== Responsividade ===== */
+@media (max-width: 600px) {
+  .app-container {
+    margin: 10px;
+    padding: 15px;
   }
 
-  th,
-  td {
-    padding: 6px;
+  .area-texto {
+    height: 120px;
+    font-size: 14px;
   }
 
-  textarea {
-    height: 150px;
-  }
-
-  button {
-    display: block;
+  .botoes button {
     width: 100%;
-    max-width: 280px;
-    margin: 8px auto;
+    font-size: 14px;
+  }
+
+  .tabela th,
+  .tabela td {
+    font-size: 13px;
+    padding: 8px;
   }
 }
