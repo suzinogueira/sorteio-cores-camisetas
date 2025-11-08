@@ -52,7 +52,7 @@ function App() {
     return embaralharArray(listaCores).slice(0, totalPessoas);
   };
 
-  // --- Função cor do texto ---
+  // --- Cor do texto ---
   const corTexto = cor => {
     const claras = ["Amarelo", "Rosa", "Branco"];
     return claras.includes(cor) ? "#000" : "#fff";
@@ -70,7 +70,7 @@ function App() {
     setDados(atualizados);
   };
 
-  // --- Sorteio por gênero ---
+  // --- Sorteio por gênero (corrigido) ---
   const sortearPorGenero = () => {
     if (dados.length === 0) return alert("Carregue a lista primeiro!");
 
@@ -80,41 +80,29 @@ function App() {
     const coresH = distribuirCoresEquilibradas(homens.length, coresHomem);
     const coresF = distribuirCoresEquilibradas(mulheres.length, cores);
 
-    const homensFinal = homens.map((p, i) => ({ ...p, cor: coresH[i] }));
-    const mulheresFinal = mulheres.map((p, i) => ({ ...p, cor: coresF[i] }));
-
-    const combinado = [...homensFinal, ...mulheresFinal];
-
-    // --- Rebalanceia pra igualdade ---
-    let todasCores = [];
-    const total = combinado.length;
-    const porCor = Math.floor(total / cores.length);
-    let resto = total % cores.length;
-
-    cores.forEach(cor => {
-      for (let i = 0; i < porCor; i++) todasCores.push(cor);
-      if (resto > 0) {
-        todasCores.push(cor);
-        resto--;
-      }
-    });
-
-    todasCores = embaralharArray(todasCores);
-
-    const final = combinado.map((p, i) => ({
+    const homensFinal = homens.map((p, i) => ({
       ...p,
-      cor: todasCores[i],
+      cor: coresH[i],
+      numero: i + 1
+    }));
+    const mulheresFinal = mulheres.map((p, i) => ({
+      ...p,
+      cor: coresF[i],
       numero: i + 1
     }));
 
-    setDados(final);
+    const combinado = [...homensFinal, ...mulheresFinal];
+    setDados(embaralharArray(combinado));
   };
 
   // --- Baixar TXT ---
   const baixarTXT = () => {
     if (dados.length === 0) return alert("Não há dados para baixar!");
     const linhas = dados
-      .map(d => `${d.nome} - ${d.modelo} - ${d.tamanho} - ${d.cor}`)
+      .map(
+        d =>
+          `${d.nome} - ${d.modelo} - ${d.tamanho} - ${d.genero} - ${d.cor}`
+      )
       .join("\n");
     const blob = new Blob([linhas], { type: "text/plain;charset=utf-8" });
     saveAs(blob, "camisetas.txt");
@@ -129,13 +117,17 @@ function App() {
         Nome: d.nome,
         Modelo: d.modelo,
         Tamanho: d.tamanho,
+        Gênero: d.genero,
         Cor: d.cor
       }))
     );
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Camisetas");
     const buf = XLSX.write(wb, { type: "array", bookType: "xlsx" });
-    saveAs(new Blob([buf], { type: "application/octet-stream" }), "camisetas.xlsx");
+    saveAs(
+      new Blob([buf], { type: "application/octet-stream" }),
+      "camisetas.xlsx"
+    );
   };
 
   // --- Ordenar tabela ---
@@ -171,20 +163,24 @@ function App() {
 
       {dados.length > 0 && (
         <>
-          <p><strong>Total:</strong> {dados.length} pessoas</p>
+          <p>
+            <strong>Total:</strong> {dados.length} pessoas
+          </p>
 
           <table className="tabela">
             <thead>
               <tr>
-                {["numero", "nome", "modelo", "tamanho", "genero", "cor"].map(col => (
-                  <th
-                    key={col}
-                    onClick={() => ordenarTabela(col)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    {col.toUpperCase()} {ordenarPor === col ? "▼" : ""}
-                  </th>
-                ))}
+                {["numero", "nome", "modelo", "tamanho", "genero", "cor"].map(
+                  col => (
+                    <th
+                      key={col}
+                      onClick={() => ordenarTabela(col)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      {col.toUpperCase()} {ordenarPor === col ? "▼" : ""}
+                    </th>
+                  )
+                )}
               </tr>
             </thead>
             <tbody>
@@ -199,7 +195,9 @@ function App() {
                     style={{
                       backgroundColor: p.cor ? p.cor.toLowerCase() : "transparent",
                       color: corTexto(p.cor),
-                      fontWeight: "bold"
+                      fontWeight: "bold",
+                      borderRadius: "6px",
+                      textAlign: "center"
                     }}
                   >
                     {p.cor}
