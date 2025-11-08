@@ -204,7 +204,7 @@ const sortearPorGenero = () => {
   const baixarTXT = () => {
     if (dados.length === 0) return alert("Não há dados para baixar!");
     const linhas = dados
-      .map(d => `${d.nome} - ${d.modelo} - ${d.tamanho} - ${d.genero} - ${d.cor}`)
+      .map(d => `${d.nome} - ${d.modelo} - ${d.tamanho} - ${d.cor}`)
       .join("\n");
     const blob = new Blob([linhas], { type: "text/plain;charset=utf-8" });
     saveAs(blob, "camisetas.txt");
@@ -219,7 +219,6 @@ const sortearPorGenero = () => {
         Nome: d.nome,
         Modelo: d.modelo,
         Tamanho: d.tamanho,
-        Gênero: d.genero,
         Cor: d.cor
       }))
     );
