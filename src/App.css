@@ -1,43 +1,52 @@
-/* ===== Layout geral ===== */
+/* ===== Estilo Elegante & Minimalista ===== */
+
+/* Fonte e fundo geral */
 body {
-  background-color: #fafafa;
+  background-color: #f8f9fb;
   font-family: "Poppins", sans-serif;
   margin: 0;
   padding: 0;
   color: #333;
 }
 
+/* Container principal */
 .app-container {
   max-width: 900px;
-  margin: 40px auto;
-  padding: 20px;
+  margin: 50px auto;
+  padding: 30px;
   background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 18px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.07);
+  transition: 0.3s ease;
 }
 
+/* Título */
 .titulo {
   text-align: center;
-  margin-bottom: 20px;
-  color: #444;
+  margin-bottom: 25px;
+  font-size: 26px;
+  color: #222;
+  letter-spacing: 0.5px;
 }
 
 /* ===== Área de texto ===== */
 .area-texto {
   width: 100%;
   height: 160px;
-  padding: 12px;
+  padding: 14px;
   font-size: 16px;
   border-radius: 12px;
   border: 1px solid #ccc;
   resize: none;
   outline: none;
-  transition: 0.3s;
+  background-color: #fafafa;
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 .area-texto:focus {
-  border-color: #1e90ff;
-  box-shadow: 0 0 8px rgba(30, 144, 255, 0.3);
+  border-color: #7a9cff;
+  box-shadow: 0 0 8px rgba(122, 156, 255, 0.3);
+  background-color: #fff;
 }
 
 /* ===== Botões ===== */
@@ -45,23 +54,25 @@ body {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 10px;
-  margin: 20px 0;
+  gap: 12px;
+  margin: 25px 0;
 }
 
 .botoes button {
-  background: #1e90ff;
+  background: linear-gradient(135deg, #a2b8ff, #6c8dff);
   color: white;
   border: none;
-  padding: 10px 18px;
+  padding: 10px 20px;
   font-size: 15px;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: 0.3s;
+  transition: transform 0.2s, box-shadow 0.2s;
+  font-weight: 500;
 }
 
 .botoes button:hover {
-  background: #187bcd;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(108, 141, 255, 0.3);
 }
 
 /* ===== Tabela ===== */
@@ -71,41 +82,43 @@ body {
   margin-top: 20px;
   font-size: 15px;
   text-align: center;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
 }
 
 .tabela th {
-  background: #1e90ff;
+  background: #7a9cff;
   color: white;
-  padding: 10px;
+  padding: 12px;
   font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 .tabela td {
   padding: 10px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #eee;
+  background-color: #fff;
+  transition: background-color 0.2s ease;
 }
 
-/* Ajusta cor do texto quando o fundo é colorido */
-.tabela tr td {
-  transition: background-color 0.2s, color 0.2s;
+.tabela tr:hover td {
+  background-color: #f3f6ff;
 }
 
-/* === CORES DAS CAMISETAS === */
+/* ===== Cores das camisetas ===== */
 .cor.verde {
-  background-color: #008000; /* verde */
-  color: #fff; /* texto branco por padrão */
+  background-color: #008000;
+  color: #000;
 }
 
 .cor.azul {
-  background-color: #007bff; /* azul */
-  color: #fff;
+  background-color: #007bff;
+  color: #000;
 }
 
 .cor.amarelo {
   background-color: #ffeb3b;
-  color: #000; /* texto preto, fundo claro */
+  color: #000;
 }
 
 .cor.rosa {
@@ -113,22 +126,29 @@ body {
   color: #000;
 }
 
-/* Corrige contraste automático */
-.cor.verde,
-.cor.azul {
-  color: #000; /* <- força texto preto */
+/* ===== Texto resumo ===== */
+p {
+  text-align: center;
+  font-size: 16px;
+  background: #f4f7ff;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.05);
 }
-
 
 /* ===== Responsividade ===== */
 @media (max-width: 600px) {
   .app-container {
-    margin: 10px;
-    padding: 15px;
+    margin: 15px;
+    padding: 20px;
+  }
+
+  .titulo {
+    font-size: 22px;
   }
 
   .area-texto {
-    height: 120px;
+    height: 130px;
     font-size: 14px;
   }
 
@@ -142,55 +162,4 @@ body {
     font-size: 13px;
     padding: 8px;
   }
-  
 }
-
-.resumo-cores {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.caixa-cor {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  padding: 10px 15px;
-  min-width: 80px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  font-weight: 600;
-}
-
-.caixa-cor span {
-  font-size: 14px;
-}
-
-.caixa-cor strong {
-  font-size: 18px;
-}
-
-/* Cores de fundo */
-.caixa-cor.rosa {
-  background-color: #ffb6c1;
-  color: #000;
-}
-
-.caixa-cor.verde {
-  background-color: #9acd32;
-  color: #000;
-}
-
-.caixa-cor.azul {
-  background-color: #87cefa;
-  color: #000;
-}
-
-.caixa-cor.amarelo {
-  background-color: #fff176;
-  color: #000;
-}
-
-
