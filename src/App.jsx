@@ -13,16 +13,18 @@ function App() {
   // --- Parse da lista ---
   const parseDados = () => {
     const linhas = texto.split("\n").filter(l => l.trim() !== "");
-    const parsed = linhas.map(linha => {
-      const partes = linha.split(" - ").map(p => p.trim());
-      if (partes.length < 4) return null;
-      const [nome, modelo, tamanho, genero] = partes;
-      return { nome, modelo, tamanho, genero: genero.toUpperCase(), cor: "" };
-    }).filter(Boolean);
+    const parsed = linhas
+      .map(linha => {
+        const partes = linha.split(" - ").map(p => p.trim());
+        if (partes.length < 4) return null;
+        const [nome, modelo, tamanho, genero] = partes;
+        return { nome, modelo, tamanho, genero: genero.toUpperCase(), cor: "" };
+      })
+      .filter(Boolean);
     setDados(parsed);
   };
 
-  // --- Embaralhar array (algoritmo de Fisher-Yates) ---
+  // --- Embaralhar ---
   const embaralharArray = arr => {
     const copy = [...arr];
     for (let i = copy.length - 1; i > 0; i--) {
@@ -32,79 +34,99 @@ function App() {
     return copy;
   };
 
-  // --- Distribuir cores 100% equilibradas ---
-  const distribuirCoresEquilibradas = (lista, coresDisponiveis) => {
-    const total = lista.length;
-    const numCores = coresDisponiveis.length;
-    const qtdPorCorBase = Math.floor(total / numCores);
-    let resto = total % numCores;
+  // --- Distribuição realmente equilibrada ---
+  const distribuirCoresEquilibradas = (totalPessoas, coresDisponiveis) => {
+    const qtdPorCorBase = Math.floor(totalPessoas / coresDisponiveis.length);
+    let resto = totalPessoas % coresDisponiveis.length;
 
-    const coresDistribuidas = [];
-
-    // Cada cor recebe a quantidade base
-    coresDisponiveis.forEach(c => {
-      for (let i = 0; i < qtdPorCorBase; i++) coresDistribuidas.push(c);
+    const listaCores = [];
+    coresDisponiveis.forEach(cor => {
+      for (let i = 0; i < qtdPorCorBase; i++) listaCores.push(cor);
+      if (resto > 0) {
+        listaCores.push(cor);
+        resto--;
+      }
     });
 
-    // Caso haja resto, distribuir 1 para cada cor até acabar
-    let i = 0;
-    while (resto > 0) {
-      coresDistribuidas.push(coresDisponiveis[i % numCores]);
-      resto--;
-      i++;
-    }
+    return embaralharArray(listaCores).slice(0, totalPessoas);
+  };
 
-    // Embaralhar a lista de cores
-    return embaralharArray(coresDistribuidas).slice(0, total);
+  // --- Função para obter cor de texto adequada ---
+  const corTexto = cor => {
+    const claras = ["Amarelo", "Rosa", "Branco"];
+    return claras.includes(cor) ? "#000" : "#fff";
   };
 
   // --- Sorteio geral ---
   const sortearGeral = () => {
     if (dados.length === 0) return alert("Carregue a lista primeiro!");
-    const coresDistribuidas = distribuirCoresEquilibradas(dados, cores);
-    const dadosAtualizados = dados.map((p, i) => ({
+
+    const coresDistribuidas = distribuirCoresEquilibradas(dados.length, cores);
+    const atualizados = dados.map((p, i) => ({
       ...p,
       cor: coresDistribuidas[i],
       numero: i + 1
     }));
-    setDados(dadosAtualizados);
+    setDados(atualizados);
   };
 
-  // --- Sorteio por gênero ---
+  // --- Sorteio por gênero com balanceamento global ---
   const sortearPorGenero = () => {
     if (dados.length === 0) return alert("Carregue a lista primeiro!");
 
     const homens = dados.filter(p => p.genero === "M");
     const mulheres = dados.filter(p => p.genero === "F");
 
-    const coresH = distribuirCoresEquilibradas(homens, coresHomem);
-    const coresF = distribuirCoresEquilibradas(mulheres, cores);
+    const coresH = distribuirCoresEquilibradas(homens.length, coresHomem);
+    const coresF = distribuirCoresEquilibradas(mulheres.length, cores);
 
-    const homensFinal = homens.map((p, i) => ({
-      ...p,
-      cor: coresH[i],
-    }));
+    const homensFinal = homens.map((p, i) => ({ ...p, cor: coresH[i] }));
+    const mulheresFinal = mulheres.map((p, i) => ({ ...p, cor: coresF[i] }));
 
-    const mulheresFinal = mulheres.map((p, i) => ({
-      ...p,
-      cor: coresF[i],
-    }));
+    const combinado = [...homensFinal, ...mulheresFinal];
 
-    // Junta e adiciona numeração geral
-    const combinado = [...homensFinal, ...mulheresFinal].map((p, i) => ({
+    // --- Balanceamento final global (garante igualdade total de cores) ---
+    const contagem = {};
+    cores.forEach(c => (contagem[c] = 0));
+
+    combinado.forEach(p => {
+      if (cores.includes(p.cor)) contagem[p.cor]++;
+    });
+
+    // Corrige excesso/déficit se necessário
+    let todasCores = [];
+    const total = combinado.length;
+    const porCor = Math.floor(total / cores.length);
+    let resto = total % cores.length;
+
+    cores.forEach(cor => {
+      for (let i = 0; i < porCor; i++) todasCores.push(cor);
+      if (resto > 0) {
+        todasCores.push(cor);
+        resto--;
+      }
+    });
+
+    todasCores = embaralharArray(todasCores);
+
+    const final = combinado.map((p, i) => ({
       ...p,
+      cor: todasCores[i],
       numero: i + 1
     }));
 
-    setDados(combinado);
+    setDados(final);
   };
 
   // --- Baixar TXT ---
   const baixarTXT = () => {
     if (dados.length === 0) return alert("Não há dados para baixar!");
-    const linhas = dados.map(d =>
-      `${d.numero} - ${d.nome} - ${d.modelo} - ${d.tamanho} - ${d.genero} - ${d.cor}`
-    ).join("\n");
+    const linhas = dados
+      .map(
+        d =>
+          `${d.numero} - ${d.nome} - ${d.modelo} - ${d.tamanho} - ${d.genero} - ${d.cor}`
+      )
+      .join("\n");
     const blob = new Blob([linhas], { type: "text/plain;charset=utf-8" });
     saveAs(blob, "camisetas.txt");
   };
@@ -125,7 +147,10 @@ function App() {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Camisetas");
     const buf = XLSX.write(wb, { type: "array", bookType: "xlsx" });
-    saveAs(new Blob([buf], { type: "application/octet-stream" }), "camisetas.xlsx");
+    saveAs(
+      new Blob([buf], { type: "application/octet-stream" }),
+      "camisetas.xlsx"
+    );
   };
 
   // --- Ordenar tabela ---
@@ -150,25 +175,29 @@ function App() {
         value={texto}
         onChange={e => setTexto(e.target.value)}
       />
-      <br /><br />
+      <br />
+      <br />
       <button onClick={parseDados}>Carregar Lista</button>
       <button onClick={sortearGeral}>Sortear Geral</button>
       <button onClick={sortearPorGenero}>Sortear por Gênero</button>
       <button onClick={baixarTXT}>Baixar TXT</button>
       <button onClick={baixarExcel}>Baixar Excel</button>
-      <br /><br />
+      <br />
+      <br />
       <table border="1" cellPadding="5">
         <thead>
           <tr>
-            {["numero", "nome", "modelo", "tamanho", "genero", "cor"].map(col => (
-              <th
-                key={col}
-                onClick={() => ordenarTabela(col)}
-                style={{ cursor: "pointer" }}
-              >
-                {col.toUpperCase()} {ordenarPor === col ? "▼" : ""}
-              </th>
-            ))}
+            {["numero", "nome", "modelo", "tamanho", "genero", "cor"].map(
+              col => (
+                <th
+                  key={col}
+                  onClick={() => ordenarTabela(col)}
+                  style={{ cursor: "pointer" }}
+                >
+                  {col.toUpperCase()} {ordenarPor === col ? "▼" : ""}
+                </th>
+              )
+            )}
           </tr>
         </thead>
         <tbody>
@@ -181,11 +210,12 @@ function App() {
               <td>{p.genero}</td>
               <td
                 style={{
-                  width: "80px",
+                  width: "100px",
                   textAlign: "center",
                   backgroundColor: p.cor ? p.cor.toLowerCase() : "transparent",
-                  color: p.cor === "Amarelo" ? "#000" : "#fff",
-                  border: "1px solid #000"
+                  color: corTexto(p.cor),
+                  border: "1px solid #000",
+                  fontWeight: "bold"
                 }}
               >
                 {p.cor}
