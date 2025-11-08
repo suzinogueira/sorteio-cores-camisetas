@@ -92,6 +92,34 @@ body {
   transition: background-color 0.2s, color 0.2s;
 }
 
+/* === CORES DAS CAMISETAS === */
+.cor.verde {
+  background-color: #008000; /* verde */
+  color: #fff; /* texto branco por padrão */
+}
+
+.cor.azul {
+  background-color: #007bff; /* azul */
+  color: #fff;
+}
+
+.cor.amarelo {
+  background-color: #ffeb3b;
+  color: #000; /* texto preto, fundo claro */
+}
+
+.cor.rosa {
+  background-color: #ff69b4;
+  color: #000;
+}
+
+/* Corrige contraste automático */
+.cor.verde,
+.cor.azul {
+  color: #000; /* <- força texto preto */
+}
+
+
 /* ===== Responsividade ===== */
 @media (max-width: 600px) {
   .app-container {
@@ -114,4 +142,6 @@ body {
     font-size: 13px;
     padding: 8px;
   }
+  
 }
+
