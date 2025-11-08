@@ -277,9 +277,8 @@ const sortearPorGenero = () => {
             <div className="indicador-cor azul">Azul {contagem.Azul}</div>
             <div className="indicador-cor amarelo">Amarelo {contagem.Amarelo}</div>
           </div>
-          
-            ))}
-          </div>
+
+        
           
           <table className="tabela">
             <thead>
