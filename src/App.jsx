@@ -35,29 +35,36 @@ function App() {
     return copy;
   };
 
-  // --- Distribuição equilibrada (nova e precisa) ---
+  // --- Distribuição equilibrada ---
   const distribuirCoresEquilibradas = (totalPessoas, coresDisponiveis) => {
-    const listaCores = [];
-    const qtdBase = Math.floor(totalPessoas / coresDisponiveis.length);
-    const resto = totalPessoas % coresDisponiveis.length;
+    const qtdPorCorBase = Math.floor(totalPessoas / coresDisponiveis.length);
+    let resto = totalPessoas % coresDisponiveis.length;
 
-    // adiciona qtdBase de cada cor
+    const listaCores = [];
     coresDisponiveis.forEach(cor => {
-      for (let i = 0; i < qtdBase; i++) listaCores.push(cor);
+      for (let i = 0; i < qtdPorCorBase; i++) listaCores.push(cor);
+      if (resto > 0) {
+        listaCores.push(cor);
+        resto--;
+      }
     });
 
-    // adiciona as sobras para as primeiras cores
-    for (let i = 0; i < resto; i++) {
-      listaCores.push(coresDisponiveis[i]);
-    }
-
-    return embaralharArray(listaCores);
+    return embaralharArray(listaCores).slice(0, totalPessoas);
   };
 
   // --- Cor do texto ---
   const corTexto = cor => {
-    const coresClaras = ["Amarelo", "Rosa", "Verde", "Azul", "Branco"];
-    return coresClaras.includes(cor) ? "#000" : "#fff";
+    const claras = ["Amarelo", "Rosa", "Branco"];
+    return claras.includes(cor) ? "#000" : "#fff";
+  };
+
+  // --- Contar cores ---
+  const contarCores = lista => {
+    const contagem = { Rosa: 0, Verde: 0, Azul: 0, Amarelo: 0 };
+    lista.forEach(p => {
+      if (p.cor && contagem.hasOwnProperty(p.cor)) contagem[p.cor]++;
+    });
+    return contagem;
   };
 
   // --- Sorteio geral ---
@@ -72,7 +79,7 @@ function App() {
     setDados(atualizados);
   };
 
-  // --- Sorteio por gênero ---
+  // --- Sorteio por gênero (corrigido e equilibrado) ---
   const sortearPorGenero = () => {
     if (dados.length === 0) return alert("Carregue a lista primeiro!");
 
@@ -82,27 +89,41 @@ function App() {
     const coresH = distribuirCoresEquilibradas(homens.length, coresHomem);
     const coresF = distribuirCoresEquilibradas(mulheres.length, cores);
 
-    const homensFinal = homens.map((p, i) => ({
+    const homensFinal = homens.map((p, i) => ({ ...p, cor: coresH[i] }));
+    const mulheresFinal = mulheres.map((p, i) => ({ ...p, cor: coresF[i] }));
+
+    const combinado = [...homensFinal, ...mulheresFinal];
+
+    // --- Recalcula igualdade exata de cores no conjunto total ---
+    const total = combinado.length;
+    const qtdBase = Math.floor(total / cores.length);
+    let resto = total % cores.length;
+
+    const todasCores = [];
+    cores.forEach(cor => {
+      for (let i = 0; i < qtdBase; i++) todasCores.push(cor);
+      if (resto > 0) {
+        todasCores.push(cor);
+        resto--;
+      }
+    });
+
+    const coresFinais = embaralharArray(todasCores);
+
+    const final = combinado.map((p, i) => ({
       ...p,
-      cor: coresH[i],
-      numero: i + 1
-    }));
-    const mulheresFinal = mulheres.map((p, i) => ({
-      ...p,
-      cor: coresF[i],
+      cor: coresFinais[i],
       numero: i + 1
     }));
 
-    // junta tudo e embaralha
-    const combinado = embaralharArray([...homensFinal, ...mulheresFinal]);
-    setDados(combinado);
+    setDados(final);
   };
 
   // --- Baixar TXT ---
   const baixarTXT = () => {
     if (dados.length === 0) return alert("Não há dados para baixar!");
     const linhas = dados
-      .map(d => `${d.nome} - ${d.modelo} - ${d.tamanho} - ${d.cor}`)
+      .map(d => `${d.nome} - ${d.modelo} - ${d.tamanho} - ${d.genero} - ${d.cor}`)
       .join("\n");
     const blob = new Blob([linhas], { type: "text/plain;charset=utf-8" });
     saveAs(blob, "camisetas.txt");
@@ -139,16 +160,7 @@ function App() {
     setOrdenarPor(coluna);
   };
 
-  // --- Contagem de cores ---
-  const contarCores = () => {
-    const contagem = {};
-    cores.forEach(cor => {
-      contagem[cor] = dados.filter(p => p.cor === cor).length;
-    });
-    return contagem;
-  };
-
-  const contagem = contarCores();
+  const contagem = contarCores(dados);
 
   return (
     <div className="app-container">
@@ -172,11 +184,11 @@ function App() {
       {dados.length > 0 && (
         <>
           <p>
-            <strong>Total:</strong> {dados.length} pessoas &nbsp; | &nbsp;
-            <span style={{ color: "#e91e63" }}>Rosa: {contagem.Rosa}</span> &nbsp;|&nbsp;
-            <span style={{ color: "#4caf50" }}>Verde: {contagem.Verde}</span> &nbsp;|&nbsp;
-            <span style={{ color: "#2196f3" }}>Azul: {contagem.Azul}</span> &nbsp;|&nbsp;
-            <span style={{ color: "#ffeb3b" }}>Amarelo: {contagem.Amarelo}</span>
+            <strong>Total:</strong> {dados.length} pessoas |
+            <strong> Rosa:</strong> {contagem.Rosa} |
+            <strong> Verde:</strong> {contagem.Verde} |
+            <strong> Azul:</strong> {contagem.Azul} |
+            <strong> Amarelo:</strong> {contagem.Amarelo}
           </p>
 
           <table className="tabela">
@@ -205,9 +217,7 @@ function App() {
                     style={{
                       backgroundColor: p.cor ? p.cor.toLowerCase() : "transparent",
                       color: corTexto(p.cor),
-                      fontWeight: "bold",
-                      textAlign: "center",
-                      borderRadius: "6px"
+                      fontWeight: "bold"
                     }}
                   >
                     {p.cor}
