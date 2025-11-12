@@ -14,7 +14,11 @@ function App() {
 
   // --- Parse da lista ---
   const parseDados = () => {
-    const linhas = texto.split("\n").filter(l => l.trim() !== "");
+    //const linhas = texto.split("\n").filter(l => l.trim() !== "");
+    const linhas = texto
+  .split(/\r?\n/)
+  .map(l => l.replace(/[^\x20-\x7EÀ-ÿ-]/g, "").trim())
+  .filter(l => l.length > 0);
     const parsed = linhas
       .map(linha => {
         const partes = linha.split(" - ").map(p => p.trim());
