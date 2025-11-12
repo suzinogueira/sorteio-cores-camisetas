@@ -118,7 +118,7 @@ function App() {
 
   return (
     <div className="app-container">
-      <h1 className="titulo">🎁 Embaralhador de Camisetas</h1>
+      <h1 className="titulo">🎁 Sorteador de Camisetas da Confra</h1>
 
       <textarea
         className="area-texto"
