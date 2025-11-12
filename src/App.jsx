@@ -3,8 +3,9 @@ import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 import "./App.css";
 
-// 🎨 Novas cores
 const cores = ["Verde", "Azul", "Amarelo", "Rosa", "Lilás"];
+
+const corTexto = () => "#000"; // sempre preto para legibilidade
 
 function App() {
   const [texto, setTexto] = useState("");
@@ -50,12 +51,6 @@ function App() {
     });
 
     return embaralharArray(listaCores).slice(0, totalPessoas);
-  };
-
-  // --- Cor do texto ---
-  const corTexto = cor => {
-    const claras = ["Amarelo", "Rosa", "Lilás"];
-    return claras.includes(cor) ? "#000" : "#fff";
   };
 
   // --- Contar cores ---
@@ -134,7 +129,7 @@ function App() {
 
       <div className="botoes">
         <button onClick={parseDados}>Carregar Lista</button>
-        <button onClick={sortearGeral}>Sortear Cores</button>
+        <button onClick={sortearGeral}>Sortear</button>
         <button onClick={baixarTXT}>Baixar TXT</button>
         <button onClick={baixarExcel}>Baixar Excel</button>
       </div>
@@ -144,18 +139,18 @@ function App() {
           <p>
             <strong>Total:</strong> {dados.length} pessoas |{" "}
             <strong>Rosa:</strong> {contagem.Rosa} |{" "}
-            <strong>Lilás:</strong> {contagem.Lilás} |{" "}
             <strong>Verde:</strong> {contagem.Verde} |{" "}
             <strong>Azul:</strong> {contagem.Azul} |{" "}
-            <strong>Amarelo:</strong> {contagem.Amarelo}
+            <strong>Amarelo:</strong> {contagem.Amarelo} |{" "}
+            <strong>Lilás:</strong> {contagem.Lilás}
           </p>
 
           <div className="resumo-cores">
             <div className="indicador-cor rosa">Rosa {contagem.Rosa}</div>
-            <div className="indicador-cor lilas">Lilás {contagem.Lilás}</div>
             <div className="indicador-cor verde">Verde {contagem.Verde}</div>
             <div className="indicador-cor azul">Azul {contagem.Azul}</div>
             <div className="indicador-cor amarelo">Amarelo {contagem.Amarelo}</div>
+            <div className="indicador-cor lilas">Lilás {contagem.Lilás}</div>
           </div>
 
           <table className="tabela">
