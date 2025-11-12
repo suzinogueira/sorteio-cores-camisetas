@@ -79,12 +79,14 @@ body {
 /* ===== Tabela ===== */
 .tabela {
   width: 100%;
+  max-width: 700px;
+  margin: 20px auto;
   border-collapse: collapse;
-  margin-top: 20px;
   font-size: 15px;
   text-align: center;
   border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
 }
 
 .tabela th {
